@@ -72,7 +72,8 @@ status2mqtt.prototype.sendMqttMessage = function(state) {
         'status' : state.status,
         'artist' : state.artist,
         'album'  : state.album ,
-        'title'  : state.title
+        'title'  : state.title ,
+        'genre'  : state.genre
     };
     
     var mqttOptions = {
