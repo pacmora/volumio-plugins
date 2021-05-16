@@ -8,6 +8,7 @@ var execSync = require('child_process').execSync;
 var io = require('socket.io-client');
 var socket = io.connect('http://localhost:3000');
 var mqtt = require('mqtt');
+var NodeID3 = require('node-id3')
 
 var running = false;
 var currentState = "unknown";
@@ -61,6 +62,15 @@ return defer.promise;
 status2mqtt.prototype.sendMqttMessage = function(state) {
     var self = this;
     var server = self.config.get('server');
+    var id3Options = {
+        noRaw: true
+    }
+    var filePath = '/mnt' + state.uri.slice(13)
+    var genre = 'NOPES'
+    NodeID3.read(file, function(err, tags) {
+       genre = tags.genre
+       self.logger.info("NodeID3 reading " + err);
+    })
     
     if(!server.trim() || ( !server.startsWith('mqtt://') && !server.startsWith('mqtts://') )) {
         self.logger.info("status2mqtt: Server is not valid, not doing anything...");
@@ -73,7 +83,7 @@ status2mqtt.prototype.sendMqttMessage = function(state) {
         'artist' : state.artist,
         'album'  : state.album ,
         'title'  : state.title ,
-        'genre'  : state.genre
+        'genre'  : genre
     };
     
     var mqttOptions = {
