@@ -146,7 +146,7 @@ status2mqtt.prototype.isGenre = function(style, artist, title) {
     var exec_line = "mpc find genre " + style + " | grep \"" + artist + "\" | grep \"" + title + "\"";
     var isGenre = false;
     var mpc_sh = spawnSync("sh", ["-c", exec_line]);
-    if (mpc_sh.stdout) {
+    if (mpc_sh.stdout.includes(artist) && mpc_sh.stdout.includes(title)) {
         isGenre = true;
     }
     return isGenre;
