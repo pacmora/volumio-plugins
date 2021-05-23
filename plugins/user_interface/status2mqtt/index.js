@@ -110,16 +110,45 @@ status2mqtt.prototype.isGenrePop = function(artist, title) {
     return self.isGenre(style, artist, title);
 }
 
+status2mqtt.prototype.isGenreRock = function(artist, title) {
+    var self = this;
+    var style = "Rock";
+    return self.isGenre(style, artist, title);
+}
+
+status2mqtt.prototype.isGenreMetal = function(artist, title) {
+    var self = this;
+    var style = "Metal";
+    return self.isGenre(style, artist, title);
+}
+
+status2mqtt.prototype.isGenreHipHop = function(artist, title) {
+    var self = this;
+    var style = "HipHop";
+    return self.isGenre(style, artist, title);
+}
+
+
+status2mqtt.prototype.isGenreElectronica = function(artist, title) {
+    var self = this;
+    var style = "Electronica";
+    return self.isGenre(style, artist, title);
+}
+
+status2mqtt.prototype.isGenreJazz = function(artist, title) {
+    var self = this;
+    var style = "Jazz";
+    return self.isGenre(style, artist, title);
+}
+
 status2mqtt.prototype.isGenre = function(style, artist, title) {
     var self = this;
     var exec_line = "mpc find genre " + style + " | grep \"" + artist + "\" | grep \"" + title + "\"";
     var isGenre = false;
     var mpc_sh = spawnSync("sh", ["-c", exec_line]);
-    mpc_sh.stdout.on("data", data => {
-        if (data) {
-            isGenre = true;
-	}
-    });
+    if (mpc_sh.stdout) {
+        isGenre = true;
+    }
     return isGenre;
 }
 
