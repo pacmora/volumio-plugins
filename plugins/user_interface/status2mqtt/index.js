@@ -8,7 +8,7 @@ var execSync = require('child_process').execSync;
 var io = require('socket.io-client');
 var socket = io.connect('http://localhost:3000');
 var mqtt = require('mqtt');
-var NodeID3 = require('node-id3')
+const { spawnSync } = require("child_process");
 
 var running = false;
 var currentState = "unknown";
@@ -62,21 +62,17 @@ return defer.promise;
 status2mqtt.prototype.sendMqttMessage = function(state) {
     var self = this;
     var server = self.config.get('server');
-    var id3Options = {
-        noRaw: true
-    }
-    var filePath = '/mnt' + state.uri.slice(13)
-    var genre = 'NOPES'
-    NodeID3.read(file, function(err, tags) {
-       genre = tags.genre
-       self.logger.info("NodeID3 reading " + err);
-    })
+    var genre = 'Plano';
     
     if(!server.trim() || ( !server.startsWith('mqtt://') && !server.startsWith('mqtts://') )) {
         self.logger.info("status2mqtt: Server is not valid, not doing anything...");
         return;
     }
     
+    if (self.isGenrePop(state.artist, state.title)) {
+        genre = "Pop";
+    }
+	
     // create a trimmed down json state for mqtt
     var mqttState = {
         'status' : state.status,
@@ -108,6 +104,24 @@ status2mqtt.prototype.sendMqttMessage = function(state) {
     });
 }
 
+status2mqtt.prototype.isGenrePop = function(artist, title) {
+    var self = this;
+    var style = "Pop";
+    return self.isGenre(style, artist, title);
+}
+
+status2mqtt.prototype.isGenre = function(style, artist, title) {
+    var self = this;
+    var exec_line = "mpc find genre " + style + " | grep \"" + artist + "\" | grep \"" + title + "\"";
+    var isGenre = false;
+    var mpc_sh = spawnSync("sh", ["-c", exec_line]);
+    mpc_sh.stdout.on("data", data => {
+        if (data) {
+            isGenre = true;
+	}
+    });
+    return isGenre;
+}
 
 status2mqtt.prototype.onStop = function() {
     var self = this;
