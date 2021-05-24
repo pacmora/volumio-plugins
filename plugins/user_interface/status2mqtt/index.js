@@ -74,8 +74,8 @@ status2mqtt.prototype.sendMqttMessage = function(state) {
     }
     
     var albumartb64 = ""
-    if (status.albumart) {
-            var buff = new Buffer(status.albumart);
+    if (state.albumart) {
+            var buff = new Buffer(state.albumart);
             albumartb64 = buff.toString('base64');
     }
 	
