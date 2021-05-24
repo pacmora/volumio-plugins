@@ -75,11 +75,14 @@ status2mqtt.prototype.sendMqttMessage = function(state) {
 	
     // create a trimmed down json state for mqtt
     var mqttState = {
-        'status' : state.status,
-        'artist' : state.artist,
-        'album'  : state.album ,
-        'title'  : state.title ,
-        'genre'  : genre
+        'status'   : state.status,
+        'artist'   : state.artist,
+        'album'    : state.album ,
+        'title'    : state.title ,
+	'duration' : state.duration,
+	'seek'     : state.seek,
+	'albumart' : state.albumart,    
+        'genre'    : genre
     };
     
     var mqttOptions = {
