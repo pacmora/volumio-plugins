@@ -9,8 +9,6 @@ var io = require('socket.io-client');
 var socket = io.connect('http://localhost:3000');
 var mqtt = require('mqtt');
 const { spawnSync } = require("child_process");
-var buff = new Buffer(data);
-var base64data = buff.toString('base64');
 
 var running = false;
 var currentState = "unknown";
