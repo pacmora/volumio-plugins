@@ -9,6 +9,8 @@ var io = require('socket.io-client');
 var socket = io.connect('http://localhost:3000');
 var mqtt = require('mqtt');
 const { spawnSync } = require("child_process");
+var buff = new Buffer(data);
+var base64data = buff.toString('base64');
 
 var running = false;
 var currentState = "unknown";
@@ -72,6 +74,12 @@ status2mqtt.prototype.sendMqttMessage = function(state) {
     if (self.isGenrePop(state.artist, state.title)) {
         genre = "Pop";
     }
+    
+    var albumartb64 = ""
+    if (status.albumart) {
+            var buff = new Buffer(status.albumart);
+            albumartb64 = buff.toString('base64');
+    }
 	
     // create a trimmed down json state for mqtt
     var mqttState = {
@@ -81,7 +89,7 @@ status2mqtt.prototype.sendMqttMessage = function(state) {
         'title'    : state.title ,
 	'duration' : state.duration,
 	'seek'     : state.seek,
-	'albumart' : state.albumart,    
+	'albumart' : albumartb64,    
         'genre'    : genre
     };
     
