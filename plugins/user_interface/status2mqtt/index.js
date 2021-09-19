@@ -71,6 +71,21 @@ status2mqtt.prototype.sendMqttMessage = function(state) {
     if (self.isGenrePop(state.artist, state.title)) {
         genre = "Pop";
     }
+    if (self.isGenreRock(state.artist, state.title)) {
+        genre = "Rock";
+    }
+    if (self.isGenreMetal(state.artist, state.title)) {
+        genre = "Metal";
+    }
+    if (self.isGenreHipHop(state.artist, state.title)) {
+        genre = "HipHop";
+    }
+    if (self.isGenreElectronica(state.artist, state.title)) {
+        genre = "Electronica";
+    }
+    if (self.isGenreJazz(state.artist, state.title)) {
+        genre = "Jazz";
+    }
 
     var albumartb64 = ""
     if (state.albumart) {
