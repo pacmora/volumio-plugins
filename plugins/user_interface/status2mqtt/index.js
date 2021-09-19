@@ -36,7 +36,7 @@ status2mqtt.prototype.onVolumioStart = function() {
                     self.logger.info("Status2Mqtt: state changed from -" + self.currentState +"- to -" + state.status + "-");
                     self.sendMqttMessage(state);
                 }
-                self.currentState = state.status;
+                self.currentState = state;
             }
         })
 
