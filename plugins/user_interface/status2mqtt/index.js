@@ -16,26 +16,25 @@ var currentState = "unknown";
 module.exports = status2mqtt;
 
 function status2mqtt(context) {
-	var self = this;
+        var self = this;
 
-	this.context = context;
-	this.commandRouter = this.context.coreCommand;
-	this.logger = this.context.logger;
-	this.configManager = this.context.configManager;
+        this.context = context;
+        this.commandRouter = this.context.coreCommand;
+        this.logger = this.context.logger;
+        this.configManager = this.context.configManager;
 }
 
-
 status2mqtt.prototype.onVolumioStart = function() {
-	var self = this;
-	var configFile=this.commandRouter.pluginManager.getConfigurationFile(this.context,'config.json');
-	this.config = new (require('v-conf'))();
-	this.config.loadFile(configFile);
-        
+        var self = this;
+        var configFile=this.commandRouter.pluginManager.getConfigurationFile(this.context,'config.json');
+        this.config = new (require('v-conf'))();
+        this.config.loadFile(configFile);
+
         socket.on('pushState', function (state) {
             if (self.running) {
                 if (state !== self.currentState) {
                     self.logger.info("Status2Mqtt: state changed from -" + self.currentState +"- to -" + state.status + "-");
-                    self.sendMqttMessage(state);                   
+                    self.sendMqttMessage(state);
                 }
                 self.currentState = state;
             }
@@ -48,10 +47,10 @@ status2mqtt.prototype.onVolumioStart = function() {
 status2mqtt.prototype.onStart = function() {
     var self = this;
     var defer=libQ.defer();
-    
+
     self.load18nStrings();
     self.running = true;
-    
+
     // Once the Plugin has successfull started resolve the promise
     defer.resolve();
 
@@ -63,12 +62,12 @@ status2mqtt.prototype.sendMqttMessage = function(state) {
     var self = this;
     var server = self.config.get('server');
     var genre = 'Plano';
-    
+
     if(!server.trim() || ( !server.startsWith('mqtt://') && !server.startsWith('mqtts://') )) {
         self.logger.info("status2mqtt: Server is not valid, not doing anything...");
         return;
     }
-    
+
     if (self.isGenrePop(state.artist, state.title)) {
         genre = "Pop";
     }
@@ -87,7 +86,7 @@ status2mqtt.prototype.sendMqttMessage = function(state) {
     if (self.isGenreJazz(state.artist, state.title)) {
         genre = "Jazz";
     }
- 
+
     var albumartb64 = ""
     if (state.albumart) {
             var buff = new Buffer(state.albumart);
@@ -105,23 +104,22 @@ status2mqtt.prototype.sendMqttMessage = function(state) {
 	'albumart' : state.albumart,    
         'genre'    : genre
     };
-    
+
     var mqttOptions = {
         clientId:self.config.get('clientid'),
         username:self.config.get('username'),
         password:self.config.get('password')
     }
-    
+
     var mqttClient = mqtt.connect(server, mqttOptions);
-    
+
     self.logger.info("status2mqtt: trying to connect to mqtt server " + server);
-    
     mqttClient.on("connect",function(){
         self.logger.info("status2mqtt: mqtt connected");
         mqttClient.publish(self.config.get('topic'), JSON.stringify(mqttState));
         mqttClient.end();
     });
-    
+
     mqttClient.on("error",function(error){
         self.logger.info("status2mqtt: Can't connect to mqtt server " +error);
         mqttClient.end();
@@ -152,7 +150,6 @@ status2mqtt.prototype.isGenreHipHop = function(artist, title) {
     return self.isGenre(style, artist, title);
 }
 
-
 status2mqtt.prototype.isGenreElectronica = function(artist, title) {
     var self = this;
     var style = "Electronica";
@@ -181,7 +178,7 @@ status2mqtt.prototype.onStop = function() {
     var defer=libQ.defer();
 
     self.running = false;
-    
+
     // Once the Plugin has successfull stopped resolve the promise
     defer.resolve();
 
@@ -191,11 +188,9 @@ status2mqtt.prototype.onStop = function() {
 
 status2mqtt.prototype.onRestart = function() {
     var self = this;
-    
+
     // Optional, use if you need it
 };
-
-
 // Configuration Methods -----------------------------------------------------------------------------
 
 status2mqtt.prototype.getUIConfig = function() {
@@ -227,17 +222,17 @@ status2mqtt.prototype.getUIConfig = function() {
 
 status2mqtt.prototype.saveSettings = function (data)
 {
-	var self = this;
-	var defer = libQ.defer();
+        var self = this;
+        var defer = libQ.defer();
 
-	self.config.set('username', data['username']);
+        self.config.set('username', data['username']);
         self.config.set('password', data['password']);
         self.config.set('server'  , data['server']);
         self.config.set('topic'   , data['topic']);
         self.config.set('clientid', data['clientid']);
-	
+
         defer.resolve();
-        
+
         if(!data['server'].trim()) {
             self.commandRouter.pushToastMessage('error', self.getI18nString("ERROR_SERVER_EMTPY_TITLE"), self.getI18nString("ERROR_SERVER_EMTPY_MESSAGE"));
         } else if(!data['server'].startsWith('mqtt://') && !data['server'].startsWith('mqtts://')) {
@@ -245,12 +240,12 @@ status2mqtt.prototype.saveSettings = function (data)
         } else {
             self.commandRouter.pushToastMessage('success', self.getI18nString("SUCCESS_TITLE"), self.getI18nString("SUCCESS_MESSAGE"));
         }
-        
-	return defer.promise;
+
+        return defer.promise;
 };
 
 status2mqtt.prototype.getConfigurationFiles = function() {
-	return ['config.json'];
+        return ['config.json'];
 }
 
 status2mqtt.prototype.load18nStrings = function () {
@@ -276,16 +271,16 @@ status2mqtt.prototype.getI18nString = function (key) {
 };
 
 status2mqtt.prototype.setUIConfig = function(data) {
-	var self = this;
-	//Perform your installation tasks here
+        var self = this;
+        //Perform your installation tasks here
 };
 
 status2mqtt.prototype.getConf = function(varName) {
-	var self = this;
-	//Perform your installation tasks here
+        var self = this;
+        //Perform your installation tasks here
 };
 
 status2mqtt.prototype.setConf = function(varName, varValue) {
-	var self = this;
-	//Perform your installation tasks here
+        var self = this;
+        //Perform your installation tasks here
 };
