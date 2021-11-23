@@ -33,11 +33,11 @@ status2mqtt.prototype.onVolumioStart = function() {
         
         socket.on('pushState', function (state) {
             if (self.running) {
-                if (state.status !== self.currentState) {
+                if (state !== self.currentState) {
                     self.logger.info("Status2Mqtt: state changed from -" + self.currentState +"- to -" + state.status + "-");
                     self.sendMqttMessage(state);                   
                 }
-                self.currentState = state.status;
+                self.currentState = state;
             }
         })
 
@@ -72,14 +72,38 @@ status2mqtt.prototype.sendMqttMessage = function(state) {
     if (self.isGenrePop(state.artist, state.title)) {
         genre = "Pop";
     }
+    if (self.isGenreRock(state.artist, state.title)) {
+        genre = "Rock";
+    }
+    if (self.isGenreMetal(state.artist, state.title)) {
+        genre = "Metal";
+    }
+    if (self.isGenreHipHop(state.artist, state.title)) {
+        genre = "HipHop";
+    }
+    if (self.isGenreElectronica(state.artist, state.title)) {
+        genre = "Electronica";
+    }
+    if (self.isGenreJazz(state.artist, state.title)) {
+        genre = "Jazz";
+    }
+ 
+    var albumartb64 = ""
+    if (state.albumart) {
+            var buff = new Buffer(state.albumart);
+            albumartb64 = buff.toString('base64');
+    }
 	
     // create a trimmed down json state for mqtt
     var mqttState = {
-        'status' : state.status,
-        'artist' : state.artist,
-        'album'  : state.album ,
-        'title'  : state.title ,
-        'genre'  : genre
+        'status'   : state.status,
+        'artist'   : state.artist,
+        'album'    : state.album ,
+        'title'    : state.title ,
+	'duration' : state.duration,
+	'seek'     : state.seek,
+	'albumart' : state.albumart,    
+        'genre'    : genre
     };
     
     var mqttOptions = {
@@ -110,16 +134,45 @@ status2mqtt.prototype.isGenrePop = function(artist, title) {
     return self.isGenre(style, artist, title);
 }
 
+status2mqtt.prototype.isGenreRock = function(artist, title) {
+    var self = this;
+    var style = "Rock";
+    return self.isGenre(style, artist, title);
+}
+
+status2mqtt.prototype.isGenreMetal = function(artist, title) {
+    var self = this;
+    var style = "Metal";
+    return self.isGenre(style, artist, title);
+}
+
+status2mqtt.prototype.isGenreHipHop = function(artist, title) {
+    var self = this;
+    var style = "HipHop";
+    return self.isGenre(style, artist, title);
+}
+
+
+status2mqtt.prototype.isGenreElectronica = function(artist, title) {
+    var self = this;
+    var style = "Electronica";
+    return self.isGenre(style, artist, title);
+}
+
+status2mqtt.prototype.isGenreJazz = function(artist, title) {
+    var self = this;
+    var style = "Jazz";
+    return self.isGenre(style, artist, title);
+}
+
 status2mqtt.prototype.isGenre = function(style, artist, title) {
     var self = this;
     var exec_line = "mpc find genre " + style + " | grep \"" + artist + "\" | grep \"" + title + "\"";
     var isGenre = false;
     var mpc_sh = spawnSync("sh", ["-c", exec_line]);
-    mpc_sh.stdout.on("data", data => {
-        if (data) {
-            isGenre = true;
-	}
-    });
+    if (mpc_sh.stdout.includes(artist) && mpc_sh.stdout.includes(title)) {
+        isGenre = true;
+    }
     return isGenre;
 }
 
